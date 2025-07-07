@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2024"
 authors = ["Charlie Gallagher"]
 license = "MIT OR Apache-2.0"
+description = "A minimal, powerful async state coordination map for Rust — wait for state changes, not just values. "
 readme = "readme.md"
 repository = "https://github.com/ctgallagher4/await_state"
 
