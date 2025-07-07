@@ -2,6 +2,10 @@
 name = "await_state"
 version = "0.1.0"
 edition = "2024"
+authors = ["Charlie Gallagher"]
+license = "MIT OR Apache-2.0"
+readme = "readme.md"
+repository = "https://github.com/ctgallagher4/await_state"
 
 [dependencies]
 dashmap = "6.1.0"
