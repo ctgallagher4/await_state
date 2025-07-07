@@ -4,32 +4,39 @@ use tokio::time::timeout;
 
 use crate::{error::AwaitStateError, watch_diff::WatchDiff};
 
+/// A map like struct based on Dashmap which stores state values
+/// with a string key.
 pub struct AwaitStateMap<T> {
     map: DashMap<String, Arc<WatchDiff<T>>>,
 }
 
 impl<T: Clone + PartialEq> AwaitStateMap<T> {
+    /// Creates a new AwaitStateMap
     pub fn new() -> Self {
         Self {
             map: DashMap::new(),
         }
     }
 
+    /// Creates a new AwaitStateMap with a specified capacity
     pub fn with_capacity(capacity: usize) -> Self {
         Self {
             map: DashMap::with_capacity(capacity),
         }
     }
 
+    /// Puts a state into the map
     pub fn put(&self, key: &str, value: T) {
         let inserted_value = Arc::new(WatchDiff::new(value));
         self.map.insert(key.to_string(), inserted_value);
     }
 
+    /// Removes a state from the map
     pub fn remove(&self, key: &str) {
         self.map.remove(key);
     }
 
+    /// Sets a state in the map
     pub async fn set_state(&self, key: &str, state: T) -> Result<(), AwaitStateError> {
         if let Some(value) = self.map.get(key) {
             value.set(state).await;
@@ -39,6 +46,7 @@ impl<T: Clone + PartialEq> AwaitStateMap<T> {
         }
     }
 
+    /// Gets a state from the map
     pub async fn get_state(&self, key: &str) -> Result<T, AwaitStateError> {
         if let Some(value) = self.map.get(key) {
             Ok(value.get_diff_cloned().await.1)
@@ -47,6 +55,7 @@ impl<T: Clone + PartialEq> AwaitStateMap<T> {
         }
     }
 
+    /// Waits until a given predicate is true for some state
     pub async fn wait_until<F>(&self, key: &str, predicate: F) -> Result<T, AwaitStateError>
     where
         F: Fn(&T, &T) -> bool + Send + Sync + 'static,
@@ -75,6 +84,7 @@ impl<T: Clone + PartialEq> AwaitStateMap<T> {
         }
     }
 
+    /// Waits until a given predicate is true for some state or until a timeout period is over.
     pub async fn wait_until_timeout<F>(
         &self,
         key: &str,
